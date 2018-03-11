@@ -338,6 +338,55 @@ impl Pretty for Sep {
     }
 }
 
+/// A wrapper which indents any newlines inside its contents.
+///
+/// # Examples
+///
+/// Basic usage:
+///
+/// ```
+/// use pretty_trait::{JoinExt, Sep, Indent, to_string};
+///
+/// let max_line = Some(20);
+/// let tab_size = 4;
+///
+/// let expected = "\
+/// (
+///     lorem
+///     ipsum
+///     dolor
+///     sit
+///     amet
+/// )";
+///
+/// assert_eq!(
+///     to_string(
+///         &"(".join(Indent(
+///             Sep(0)
+///                 .join("lorem")
+///                 .join(Sep(1))
+///                 .join("ipsum")
+///                 .join(Sep(1))
+///                 .join("dolor")
+///                 .join(Sep(1))
+///                 .join("sit")
+///                 .join(Sep(1))
+///                 .join("amet")
+///         )).join(Sep(0)).join(")"),
+///         max_line,
+///         tab_size,
+///     ),
+///     expected
+/// );
+/// ```
+///
+/// # Caution
+///
+/// To indent a block enclosed in paired delimiters like brackets, care must be taken to ensure that
+/// the first line of the content *is* indented, and that the closing delimiter *is not* indented
+/// along with its contents.  To ensure this, the newline after the opening delimiter should occur
+/// *inside* the `Indent` block, and the newline before the closing delimiter should occur *outside*
+/// the `Indent` block, as in the example above.
 #[derive(Clone, Copy, Debug)]
 pub struct Indent<T>(pub T);
 
