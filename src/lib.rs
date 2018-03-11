@@ -645,6 +645,49 @@ impl<T: Pretty> Pretty for Conditional<T> {
     }
 }
 
+/// An `Option` will render its contents if it is `Some`, or an empty string if it is `None`.
+///
+/// This is useful when you need multiple pretty values to have the same type, even though they are
+/// not all of exactly the same form when rendered.
+///
+/// # Examples
+///
+/// Basic usage:
+///
+/// ```
+/// use pretty_trait::{JoinExt, Seq, Sep, to_string};
+///
+/// let tab_size = 4;
+///
+/// assert_eq!(
+///     to_string(
+///         &Seq(vec![
+///             "lorem".join(Some(",".join(Sep(1)))),
+///             "ipsum".join(Some(",".join(Sep(1)))),
+///             "dolor".join(Some(",".join(Sep(1)))),
+///             "sit".join(Some(",".join(Sep(1)))),
+///             "amet".join(None),
+///         ]),
+///         None,
+///         tab_size,
+///     ),
+///     "lorem, ipsum, dolor, sit, amet"
+/// );
+/// ```
+///
+/// If the above example were modified so that it did not use `Option`s, it would not compile
+/// because the last item in the `Seq` would have a mismatched type:
+///
+/// ```compile_fail
+/// # use pretty_trait::{JoinExt, Seq, Sep};
+/// Seq(vec![
+///     "lorem".join(",".join(Some(Sep(1)))),
+///     "ipsum".join(",".join(Some(Sep(1)))),
+///     "dolor".join(",".join(Some(Sep(1)))),
+///     "sit".join(",".join(Some(Sep(1)))),
+///     "amet",
+/// ]);
+/// ```
 impl<T: Pretty> Pretty for Option<T> {
     fn size(&self) -> Size {
         match self {
