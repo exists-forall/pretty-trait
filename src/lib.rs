@@ -117,11 +117,30 @@ impl Mul<usize> for Size {
     }
 }
 
+/// A struct used internally in pretty-printing to store information about the rendering
+/// environment.
+///
+/// You only need to use this struct if you are implementing your own `Pretty` types.  To render an
+/// existing `Pretty` type with custom line length and tab size parameters, use the `max_line` and
+/// `tab_size` arguments of the [`write`] or [`to_string`] functions.
+///
+/// [`write`]: fn.write.html
+/// [`to_string`]: fn.to_string.html
 pub struct Context<'a> {
+    /// The maximum desired line length, or `None` if lines may be of unlimited length.
     pub max_line: Option<usize>,
+
+    /// The desired number of spaces to use for a single level of indentation.
     pub tab_size: usize,
+
+    /// The current number of tab stops to be inserted before each new line.
     pub indent_level: usize,
+
+    /// Whether or not the environment has been broken across multiple lines because its contents
+    /// were too large.
     pub broken: bool,
+
+    /// The handle to render to.
     pub writer: &'a mut io::Write,
 }
 
