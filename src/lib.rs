@@ -156,10 +156,24 @@ impl<'a> Context<'a> {
     }
 }
 
+/// Types which can be pretty-printed.
+///
+/// Strings implement `Pretty`, as do a number of useful built-in composable wrapper types.  As
+/// such, you usually don't need to implement it for your own types, although you can if necessary.
+///
+/// You usually do not need to directly call the methods defined here, unless your are implementing
+/// your own `Pretty` type.  If you just want to render a value to a buffer or an IO handle, use one
+/// of the [`write`], [`println_simple`], or [`to_string`] functions instead.
+///
+/// [`write`]: fn.write.html
+/// [`println_simple`]: fn.println_simple.html
+/// [`to_string`]: fn.to_string.html
 pub trait Pretty {
+    /// Calculate the intrinsic size of this value, if it were to be displayed on a single line.
     fn size(&self) -> Size;
 
-    fn pretty_write(&self, Context) -> io::Result<()>;
+    /// Render this value in a given context.
+    fn pretty_write(&self, context: Context) -> io::Result<()>;
 }
 
 impl<'a, T: Pretty + ?Sized> Pretty for &'a T {
