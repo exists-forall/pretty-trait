@@ -528,6 +528,9 @@ impl<T: Pretty> Pretty for Seq<T> {
     }
 }
 
+/// Render a pretty-printable value to an arbitrary `io::Write` handle.
+///
+/// This is the most general way to render a `Pretty` type.
 pub fn write<T: Pretty>(
     writer: &mut io::Write,
     content: &T,
@@ -545,12 +548,29 @@ pub fn write<T: Pretty>(
     content.pretty_write(context)
 }
 
+/// Render a pretty-printable value to an owned string and return it.
+///
+/// If you just want to write a value to standard output, you probably want one of the more
+/// efficient [`println_simple`] or [`write`] functions instead.
+///
+/// # Panics
+///
+/// Because `Pretty` is defined in terms of writing to an `io::Write` handle, not a string, there is
+/// no guarantee that rendering a `Pretty` type will produce valid UTF-8.  None of the built-in
+/// types in the `pretty-trait` crate will produce invalid UTF-8, but if a custom `Pretty` type
+/// generates invalid UTF-8 then this function will panic.
+///
+/// [`println_simple`]: fn.println_simple.html
+/// [`write`]: fn.write.html
 pub fn to_string<T: Pretty>(content: &T, max_line: Option<usize>, tab_size: usize) -> String {
     let mut result = Vec::new();
     write(&mut result, content, max_line, tab_size).expect("Writing to a string should not fail");
     String::from_utf8(result).expect("Invalid UTF8")
 }
 
+/// Conveniently render a pretty-printable value to standard output.
+///
+/// This function uses a default maximum line length of 80 characters, and a tab size of 4 spaces.
 pub fn println_simple<T: Pretty>(content: &T) {
     write(&mut io::stdout(), content, Some(80), 2).unwrap();
     println!("");
