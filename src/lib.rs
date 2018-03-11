@@ -576,10 +576,57 @@ pub fn println_simple<T: Pretty>(content: &T) {
     println!("");
 }
 
+/// A wrapper which decides whether or not to render its contents based on the breaking mode of the
+/// environment.
+///
+/// # Examples
+///
+/// Adding a trailing comma only when broken:
+///
+/// ```
+/// use pretty_trait::{JoinExt, Sep, Conditional, to_string};
+///
+/// let max_line = Some(10);
+/// let tab_size = 4;
+///
+/// let to_render = "lorem,"
+///     .join(Sep(1))
+///     .join("ipsum,")
+///     .join(Sep(1))
+///     .join("dolor,")
+///     .join(Sep(1))
+///     .join("sit,")
+///     .join(Sep(1))
+///     .join("amet")
+///     .join(Conditional::OnlyBroken(","));
+///
+/// // Trailing comma when broken across multiple lines:
+///
+/// let expected_broken = "\
+/// lorem,
+/// ipsum,
+/// dolor,
+/// sit,
+/// amet,";
+///
+/// assert_eq!(to_string(&to_render, max_line, tab_size), expected_broken);
+///
+/// // No trailing comma when rendered on a single line:
+///
+/// assert_eq!(
+///     to_string(&to_render, None, tab_size),
+///     "lorem, ipsum, dolor, sit, amet"
+/// );
+/// ```
 #[derive(Clone, Copy, Debug)]
 pub enum Conditional<T> {
+    /// Render the wrapped value under all circumstances
     Always(T),
+
+    /// Render the wrapped value only when it appears in a multi-line context
     OnlyBroken(T),
+
+    /// Render the wrapped value only when it appears in a single-line context
     OnlyUnbroken(T),
 }
 
