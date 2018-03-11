@@ -1,5 +1,84 @@
+//! # pretty-trait
+//!
+//! `pretty-trait` is a simple trait-based library for producing pretty debug output.  It is
+//! intended to make it easy to render large tree-like structures (such as program syntax trees) in
+//! such a way that long items are broken across multiple lines and indented.
+//!
+//! The core feature of this crate is the `Pretty` trait, which represents types that can be
+//! pretty-printed.  This crate provides a number of built-in types implementing `Pretty`, which be
+//! combined to implement a wide variety of pretty-printing strategies.  For many purposes, you will
+//! not need to implement `Pretty` for your own types, but can instead convert your type into a
+//! structure composed out of these built-in types.
+//!
+//! # Examples
+//!
+//! Converting a custom type to built-in `Pretty` types:
+//!
+//! ```
+//! use pretty_trait::*;
+//!
+//! enum NestList {
+//!     Atom(i32),
+//!     List(Vec<NestList>),
+//! }
+//!
+//! fn to_pretty(nest_list: &NestList) -> Box<Pretty> {
+//!     match nest_list {
+//!         &NestList::Atom(val) => Box::new(val.to_string()),
+//!         &NestList::List(ref children) => {
+//!             Box::new(Group::new(
+//!                 "["
+//!                     .join(Indent(
+//!                         Sep(0).join(
+//!                             delimited(
+//!                                 &",".join(Sep(1)),
+//!                                 children.iter().map(to_pretty),
+//!                             ).join(Conditional::OnlyBroken(",")),
+//!                         ),
+//!                     )).join(Sep(0))
+//!                     .join("]"),
+//!             ))
+//!         }
+//!     }
+//! }
+//!
+//! let max_line = Some(40);
+//! let tab_size = 4;
+//!
+//! let small_list = NestList::List(vec![NestList::Atom(1), NestList::Atom(2), NestList::Atom(3)]);
+//! assert_eq!(to_string(&to_pretty(&small_list), max_line, tab_size), "[1, 2, 3]");
+//!
+//! let large_list = NestList::List(vec![
+//!     NestList::List(vec![
+//!         NestList::Atom(1),
+//!         NestList::Atom(2),
+//!         NestList::Atom(3),
+//!         NestList::Atom(4),
+//!         NestList::Atom(5),
+//!     ]),
+//!     NestList::List(vec![
+//!         NestList::Atom(6),
+//!         NestList::Atom(7),
+//!         NestList::Atom(8),
+//!         NestList::Atom(9),
+//!         NestList::Atom(10),
+//!     ]),
+//!     NestList::List(vec![
+//!         NestList::List(vec![NestList::Atom(11), NestList::Atom(12), NestList::Atom(13)]),
+//!         NestList::List(vec![NestList::Atom(14), NestList::Atom(15), NestList::Atom(16)]),
+//!     ]),
+//! ]);
+//! let expected = "\
+//! [
+//!     [1, 2, 3, 4, 5],
+//!     [6, 7, 8, 9, 10],
+//!     [[11, 12, 13], [14, 15, 16]],
+//! ]";
+//! assert_eq!(to_string(&to_pretty(&large_list), max_line, tab_size), expected);
+//! ```
+
 use std::io;
-use std::ops::{Add, Deref};
+use std::ops::{Add, Mul, Deref};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Size {
@@ -24,6 +103,17 @@ impl Add<Size> for Size {
         match (self, other) {
             (Size::Size(size1), Size::Size(size2)) => Size::Size(size1 + size2),
             _ => Size::MultiLine,
+        }
+    }
+}
+
+impl Mul<usize> for Size {
+    type Output = Size;
+
+    fn mul(self, other: usize) -> Size {
+        match self {
+            Size::Size(size) => Size::Size(size * other),
+            Size::MultiLine => Size::MultiLine,
         }
     }
 }
@@ -104,6 +194,7 @@ impl Pretty for String {
     }
 }
 
+#[derive(Clone, Copy, Debug)]
 pub struct Group<T> {
     size: Size,
     content: T,
@@ -129,6 +220,7 @@ impl<T: Pretty> Pretty for Group<T> {
     }
 }
 
+#[derive(Clone, Copy, Debug)]
 pub struct Sep(pub usize);
 
 impl Pretty for Sep {
@@ -151,6 +243,7 @@ impl Pretty for Sep {
     }
 }
 
+#[derive(Clone, Copy, Debug)]
 pub struct Indent<T>(pub T);
 
 impl<T: Pretty> Pretty for Indent<T> {
@@ -164,6 +257,7 @@ impl<T: Pretty> Pretty for Indent<T> {
     }
 }
 
+#[derive(Clone, Copy, Debug)]
 pub struct Join<T, U>(pub T, pub U);
 
 impl<T: Pretty, U: Pretty> Pretty for Join<T, U> {
@@ -188,6 +282,7 @@ impl<T: Pretty> JoinExt for T {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct Seq<T>(pub Vec<T>);
 
 impl<T: Pretty> Pretty for Seq<T> {
@@ -208,7 +303,7 @@ impl<T: Pretty> Pretty for Seq<T> {
 
 pub fn write<T: Pretty>(
     writer: &mut io::Write,
-    content: T,
+    content: &T,
     max_line: Option<usize>,
     tab_size: usize,
 ) -> io::Result<()> {
@@ -223,7 +318,70 @@ pub fn write<T: Pretty>(
     content.pretty_write(context)
 }
 
-pub fn println_simple<T: Pretty>(content: T) {
+pub fn to_string<T: Pretty>(content: &T, max_line: Option<usize>, tab_size: usize) -> String {
+    let mut result = Vec::new();
+    write(&mut result, content, max_line, tab_size).expect("Writing to a string should not fail");
+    String::from_utf8(result).expect("Invalid UTF8")
+}
+
+pub fn println_simple<T: Pretty>(content: &T) {
     write(&mut io::stdout(), content, Some(80), 2).unwrap();
     println!("");
+}
+
+#[derive(Clone, Copy, Debug)]
+pub enum Conditional<T> {
+    Always(T),
+    OnlyBroken(T),
+    OnlyUnbroken(T),
+}
+
+impl<T: Pretty> Pretty for Conditional<T> {
+    fn size(&self) -> Size {
+        Size::Size(0)
+    }
+
+    fn pretty_write(&self, context: Context) -> io::Result<()> {
+        match (self, context.broken) {
+            (&Conditional::Always(ref inner), _) |
+            (&Conditional::OnlyBroken(ref inner), true) |
+            (&Conditional::OnlyUnbroken(ref inner), false) => inner.pretty_write(context),
+            _ => Ok(()),
+        }
+    }
+}
+
+impl<T: Pretty> Pretty for Option<T> {
+    fn size(&self) -> Size {
+        match self {
+            &Some(ref inner) => inner.size(),
+            &None => Size::Size(0),
+        }
+    }
+
+    fn pretty_write(&self, context: Context) -> io::Result<()> {
+        match self {
+            &Some(ref inner) => inner.pretty_write(context),
+            &None => Ok(()),
+        }
+    }
+}
+
+pub fn delimited<Delim, Item, It>(delim: &Delim, it: It) -> Seq<Join<Item, Option<Delim>>>
+where
+    Delim: Pretty + Clone,
+    Item: Pretty,
+    It: IntoIterator<Item = Item>,
+{
+    let mut iter = it.into_iter().peekable();
+    let mut results = Vec::new();
+    while let Some(item) = iter.next() {
+        let cond_delim = if iter.peek().is_some() {
+            Some(delim.clone())
+        } else {
+            None
+        };
+        results.push(item.join(cond_delim));
+    }
+    Seq(results)
 }
