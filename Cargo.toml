@@ -2,5 +2,9 @@
 name = "pretty-trait"
 version = "0.1.0"
 authors = ["William Brandon <hypercube97@gmail.com>"]
+description = "Simple trait-based pretty-printing"
+keywords = ["pretty", "print", "debug", "format", "layout"]
+categories = ["development-tools::debugging", "value-formatting", "command-line-interface"]
+license = "MIT"
 
 [dependencies]
