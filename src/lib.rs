@@ -266,6 +266,55 @@ impl<T: Pretty> Pretty for Group<T> {
     }
 }
 
+/// A whitespace separator, rendered as a space if unbroken or a newline if broken.
+///
+/// The most common uses of `Sep` are `Sep(1)`, which renders as a single space or a newline, and
+/// `Sep(0)`, which introduces a point where a newline will be inserted if the content is broken.
+///
+/// # Examples
+///
+/// Breaking into multiple lines:
+///
+/// ```
+/// use pretty_trait::{JoinExt, Sep, to_string};
+///
+/// let max_line = Some(10);
+/// let tab_size = 4;
+///
+/// // Exceeding the line length without a separator:
+/// assert_eq!(to_string(&"hello".join("world!"), max_line, tab_size), "helloworld!");
+///
+/// let expected_broken = "\
+/// hello
+/// world!";
+///
+/// assert_eq!(
+///     to_string(&"hello".join(Sep(0)).join("world!"), max_line, tab_size),
+///     expected_broken
+/// );
+///
+/// assert_eq!(
+///     to_string(&"hello".join(Sep(1)).join("world!"), max_line, tab_size),
+///     expected_broken
+/// );
+/// ```
+///
+/// Introducing spaces on a single line:
+///
+/// ```
+/// # use pretty_trait::{JoinExt, Sep, to_string};
+/// # let tab_size = 4;
+/// #
+/// assert_eq!(
+///     to_string(&"hello".join(Sep(1)).join("world!"), None, tab_size),
+///     "hello world!"
+/// );
+///
+/// assert_eq!(
+///     to_string(&"hello".join(Sep(0)).join("world!"), None, tab_size),
+///     "helloworld!"
+/// );
+/// ```
 #[derive(Clone, Copy, Debug)]
 pub struct Sep(pub usize);
 
