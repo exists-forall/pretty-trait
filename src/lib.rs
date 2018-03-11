@@ -77,6 +77,8 @@
 use std::io;
 use std::ops::{Add, Mul, Deref};
 
+/// Represents the number of visual columns a value would take up if it were displayed on one line,
+/// unless it is inherently multi-line.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Size {
     Size(usize),
