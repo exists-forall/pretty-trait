@@ -457,6 +457,58 @@ impl<T: Pretty> JoinExt for T {
     }
 }
 
+/// A wrapper that concatenates an arbitrary sequence of pretty-printable values.
+///
+/// # Examples
+///
+/// Basic usage:
+///
+/// ```
+/// use pretty_trait::{JoinExt, Sep, Seq, to_string};
+///
+/// let max_line = Some(10);
+/// let tab_size = 4;
+///
+/// let expected = "\
+/// lorem
+/// ipsum
+/// dolor
+/// sit
+/// amet";
+///
+/// assert_eq!(
+///     to_string(
+///         &Seq(vec![
+///             "lorem".join(Some(Sep(1))),
+///             "ipsum".join(Some(Sep(1))),
+///             "dolor".join(Some(Sep(1))),
+///             "sit".join(Some(Sep(1))),
+///             "amet".join(None),
+///         ]),
+///         max_line,
+///         tab_size,
+///     ),
+///     expected
+/// );
+/// ```
+///
+/// # Note
+///
+/// Because a `Seq` is just a thin wrapper around a `Vec`, all of its items must be of the same
+/// type.  When working with combinators like `join` this can sometimes be confusing. For example,
+/// the following code will not compile because the final element of the `Vec` does not have the
+/// same type as the others:
+///
+/// ```compile_fail
+/// # use pretty_trait::{JoinExt, Seq, Sep};
+/// Seq(vec![
+///     "lorem".join(Some(Sep(1))),
+///     "ipsum".join(Some(Sep(1))),
+///     "dolor".join(Some(Sep(1))),
+///     "sit".join(Some(Sep(1))),
+///     "amet",
+/// ]);
+/// ```
 #[derive(Clone, Debug)]
 pub struct Seq<T>(pub Vec<T>);
 
