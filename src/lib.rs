@@ -401,6 +401,12 @@ impl<T: Pretty> Pretty for Indent<T> {
     }
 }
 
+/// A wrapper which concatenates two pretty-printable values.
+///
+/// This struct is created by the [`join`] method from the `JoinExt` trait.  See its documentation
+/// for more.
+///
+/// [`join`]: trait.JoinExt.html#method.join
 #[derive(Clone, Copy, Debug)]
 pub struct Join<T, U>(pub T, pub U);
 
@@ -416,7 +422,32 @@ impl<T: Pretty, U: Pretty> Pretty for Join<T, U> {
     }
 }
 
+/// Allows `join` to be called on any `Pretty` type.
+///
+/// This trait is automatically implemented for all `Pretty` types.  It should never be implemented
+/// manually.
 pub trait JoinExt: Sized {
+    /// Concatenate two pretty-printable values.  This directly displays one after the other, with
+    /// no separation or line breaks.  For separation, use the [`Sep`] type.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// use pretty_trait::{JoinExt, to_string};
+    ///
+    /// let max_line = Some(10);
+    /// let tab_size = 4;
+    ///
+    /// // Exceeds maximum line length, but does not break because there is no break-point:
+    /// assert_eq!(
+    ///     to_string(&"hello".join("world!"), max_line, tab_size),
+    ///     "helloworld!"
+    /// );
+    /// ```
+    ///
+    /// [`Sep`]: struct.Sep.html
     fn join<U>(self, other: U) -> Join<Self, U>;
 }
 
