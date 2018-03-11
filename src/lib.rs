@@ -6,16 +6,16 @@
 //!
 //! The core feature of this crate is the `Pretty` trait, which represents types that can be
 //! pretty-printed.  This crate provides a number of built-in types implementing `Pretty`, which be
-//! combined to implement a wide variety of pretty-printing strategies.  For many purposes, you will
-//! not need to implement `Pretty` for your own types, but can instead convert your type into a
-//! structure composed out of these built-in types.
+//! combined to implement a wide variety of formatting and layout strategies.  For many purposes,
+//! you will not need to implement `Pretty` for your own types, but can instead convert your type
+//! into a structure composed out of these built-in types.
 //!
 //! # Examples
 //!
 //! Converting a custom type to built-in `Pretty` types:
 //!
 //! ```
-//! use pretty_trait::*;
+//! use pretty_trait::{Pretty, JoinExt, Group, Indent, Sep, delimited, Conditional, to_string};
 //!
 //! enum NestList {
 //!     Atom(i32),
@@ -29,12 +29,9 @@
 //!             Box::new(Group::new(
 //!                 "["
 //!                     .join(Indent(
-//!                         Sep(0).join(
-//!                             delimited(
-//!                                 &",".join(Sep(1)),
-//!                                 children.iter().map(to_pretty),
-//!                             ).join(Conditional::OnlyBroken(",")),
-//!                         ),
+//!                         Sep(0)
+//!                             .join(delimited(&",".join(Sep(1)), children.iter().map(to_pretty)))
+//!                             .join(Conditional::OnlyBroken(",")),
 //!                     )).join(Sep(0))
 //!                     .join("]"),
 //!             ))
