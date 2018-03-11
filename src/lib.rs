@@ -193,6 +193,53 @@ impl Pretty for String {
     }
 }
 
+/// A wrapper which groups its contents so they will fit onto one line if possible, even if their
+/// environment has been broken across multiple lines.
+///
+/// # Examples
+///
+/// ```
+/// use pretty_trait::{JoinExt, Group, Sep, to_string};
+///
+/// let max_line = Some(10);
+/// let tab_size = 4;
+///
+/// let expected_ungrouped = "\
+/// hello
+/// ,
+/// world
+/// !";
+///
+/// assert_eq!(
+///     to_string(
+///         &"hello"
+///             .join(Sep(0))
+///             .join(",")
+///             .join(Sep(1))
+///             .join("world")
+///             .join(Sep(0))
+///             .join("!"),
+///         max_line,
+///         tab_size,
+///     ),
+///     expected_ungrouped
+/// );
+///
+/// let expected_grouped = "\
+/// hello,
+/// world!";
+///
+/// assert_eq!(
+///     to_string(
+///         &Group::new("hello".join(Sep(0)).join(","))
+///             .join(Sep(1))
+///             .join(Group::new("world".join(Sep(0)).join("!"))),
+///         max_line,
+///         tab_size,
+///     ),
+///     expected_grouped,
+/// );
+/// ```
 #[derive(Clone, Copy, Debug)]
 pub struct Group<T> {
     size: Size,
