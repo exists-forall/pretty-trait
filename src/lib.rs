@@ -704,6 +704,22 @@ impl<T: Pretty> Pretty for Option<T> {
     }
 }
 
+/// Separate a sequence of pretty-printable values by a delimiter.
+///
+/// The delimiter is not included on the last item.
+///
+/// # Examples
+///
+/// Basic usage:
+///
+/// ```
+/// use pretty_trait::{JoinExt, Sep, delimited, to_string};
+///
+/// assert_eq!(
+///     to_string(&delimited(&",".join(Sep(1)), &["lorem", "ipsum", "dolor"]), None, 4),
+///     "lorem, ipsum, dolor"
+/// );
+/// ```
 pub fn delimited<Delim, Item, It>(delim: &Delim, it: It) -> Seq<Join<Item, Option<Delim>>>
 where
     Delim: Pretty + Clone,
