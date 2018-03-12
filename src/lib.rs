@@ -372,6 +372,40 @@ impl Pretty for Sep {
     }
 }
 
+/// An unconditional newline.
+///
+/// Always causes its environment to break.
+///
+/// # Examples
+///
+/// Basic usage:
+///
+/// ```
+/// use pretty_trait::{JoinExt, Newline, to_string};
+///
+/// let expected = "\
+/// hello
+/// world";
+///
+/// assert_eq!(to_string(&"hello".join(Newline).join("world"), None, 4), expected);
+/// ```
+#[derive(Clone, Copy, Debug)]
+pub struct Newline;
+
+impl Pretty for Newline {
+    fn size(&self) -> Size {
+        Size::MultiLine
+    }
+
+    fn pretty_write(&self, context: Context) -> io::Result<()> {
+        writeln!(context.writer, "")?;
+        for _ in 0..(context.tab_size * context.indent_level) {
+            write!(context.writer, " ")?;
+        }
+        Ok(())
+    }
+}
+
 /// A wrapper which indents any newlines inside its contents.
 ///
 /// # Examples
