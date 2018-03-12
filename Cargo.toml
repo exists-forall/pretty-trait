@@ -6,5 +6,6 @@ description = "Simple trait-based pretty-printing"
 keywords = ["pretty", "print", "debug", "format", "layout"]
 categories = ["development-tools::debugging", "value-formatting", "command-line-interface"]
 license = "MIT"
+repository = "https://github.com/SelectricSimian/pretty-trait"
 
 [dependencies]
