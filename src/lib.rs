@@ -76,6 +76,7 @@
 
 use std::io;
 use std::ops::{Add, Mul, Deref};
+use std::rc::Rc;
 
 /// Represents the number of visual columns a value would take up if it were displayed on one line,
 /// unless it is inherently multi-line.
@@ -197,6 +198,16 @@ impl<'a, T: Pretty + ?Sized> Pretty for &'a mut T {
 }
 
 impl<'a, T: Pretty + ?Sized> Pretty for Box<T> {
+    fn size(&self) -> Size {
+        self.deref().size()
+    }
+
+    fn pretty_write(&self, context: Context) -> io::Result<()> {
+        self.deref().pretty_write(context)
+    }
+}
+
+impl<'a, T: Pretty + ?Sized> Pretty for Rc<T> {
     fn size(&self) -> Size {
         self.deref().size()
     }
