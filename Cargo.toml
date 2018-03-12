@@ -1,6 +1,6 @@
 [package]
 name = "pretty-trait"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["William Brandon <hypercube97@gmail.com>"]
 description = "Simple trait-based pretty-printing"
 keywords = ["pretty", "print", "debug", "format", "layout"]
