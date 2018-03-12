@@ -294,7 +294,8 @@ impl<T: Pretty> Pretty for Group<T> {
     }
 
     fn pretty_write(&self, mut context: Context) -> io::Result<()> {
-        context.broken = self.size.exceeds(context.max_line);
+        let indented_size = self.size + Size::Size(context.indent_level * context.tab_size);
+        context.broken = indented_size.exceeds(context.max_line);
         self.content.pretty_write(context)
     }
 }
