@@ -823,7 +823,7 @@ where
 ///
 /// When displayed on a single line, `block` has no effect.
 ///
-/// When displayed on multiple lines, `block` insert appropriate newlines before and after its
+/// When displayed on multiple lines, `block` inserts appropriate newlines before and after its
 /// content.
 ///
 /// `block(x)` is equivalent to `Indent(Sep(0).join(x)).join(Sep(0))`.
