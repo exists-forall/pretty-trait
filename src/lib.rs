@@ -581,10 +581,10 @@ impl<T: Pretty> JoinExt for T {
 /// ```compile_fail
 /// # use pretty_trait::{JoinExt, Seq, Sep};
 /// Seq(vec![
-///     "lorem".join(Some(Sep(1))),
-///     "ipsum".join(Some(Sep(1))),
-///     "dolor".join(Some(Sep(1))),
-///     "sit".join(Some(Sep(1))),
+///     "lorem".join(Sep(1)),
+///     "ipsum".join(Sep(1)),
+///     "dolor".join(Sep(1)),
+///     "sit".join(Sep(1)),
 ///     "amet",
 /// ]);
 /// ```
