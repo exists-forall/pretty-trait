@@ -817,3 +817,49 @@ where
     }
     Seq(results)
 }
+
+/// Wrap a pretty-printable value so that it will display as an indented block when broken across
+/// multiple lines.
+///
+/// When displayed on a single line, `block` has no effect.
+///
+/// When displayed on multiple lines, `block` insert appropriate newlines before and after its
+/// content.
+///
+/// `block(x)` is equivalent to `Indent(Sep(0).join(x)).join(Sep(0))`.
+///
+/// # Examples
+///
+/// Basic usage:
+///
+/// ```
+/// use pretty_trait::{JoinExt, Sep, block, to_string};
+///
+/// let max_line = Some(10);
+/// let tab_size = 2;
+///
+/// let expected_broken = "\
+/// (
+///   hello
+///   world
+/// )";
+///
+/// let blocked = "(".join(block("hello".join(Sep(1)).join("world"))).join(")");
+///
+/// assert_eq!(
+///     to_string(&blocked, max_line, tab_size),
+///     expected_broken,
+/// );
+///
+/// // When displayed on one line, block has no effect:
+///
+/// let expected_unbroken = "(hello world)";
+///
+/// assert_eq!(
+///     to_string(&blocked, None, tab_size),
+///     expected_unbroken,
+/// );
+/// ```
+pub fn block<T: Pretty>(content: T) -> Join<Indent<Join<Sep, T>>, Sep> {
+    Indent(Sep(0).join(content)).join(Sep(0))
+}
