@@ -649,7 +649,7 @@ pub fn to_string<T: Pretty>(content: &T, max_line: Option<usize>, tab_size: usiz
 
 /// Conveniently render a pretty-printable value to standard output.
 ///
-/// This function uses a default maximum line length of 80 characters, and a tab size of 4 spaces.
+/// This function uses a default maximum line length of 80 characters, and a tab size of 2 spaces.
 pub fn println_simple<T: Pretty>(content: &T) {
     write(&mut io::stdout(), content, Some(80), 2).unwrap();
     println!("");
