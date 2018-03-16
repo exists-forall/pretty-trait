@@ -15,7 +15,7 @@
 //! Converting a custom type to built-in `Pretty` types:
 //!
 //! ```
-//! use pretty_trait::{Pretty, JoinExt, Group, Indent, Sep, delimited, Conditional, to_string};
+//! use pretty_trait::{Pretty, JoinExt, Group, Indent, Sep, delimited, Conditional, to_string, block};
 //!
 //! enum NestList {
 //!     Atom(i32),
@@ -28,12 +28,10 @@
 //!         &NestList::List(ref children) => {
 //!             Box::new(Group::new(
 //!                 "["
-//!                     .join(Indent(
-//!                         Sep(0)
-//!                             .join(delimited(&",".join(Sep(1)), children.iter().map(to_pretty)))
+//!                     .join(block(
+//!                         delimited(&",".join(Sep(1)), children.iter().map(to_pretty))
 //!                             .join(Conditional::OnlyBroken(",")),
-//!                     )).join(Sep(0))
-//!                     .join("]"),
+//!                     )).join("]"),
 //!             ))
 //!         }
 //!     }
