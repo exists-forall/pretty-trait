@@ -1,10 +1,8 @@
-//! # pretty-trait
-//!
 //! `pretty-trait` is a simple trait-based library for producing pretty debug output.  It is
 //! intended to make it easy to render large tree-like structures (such as program syntax trees) in
 //! such a way that long items are broken across multiple lines and indented.
 //!
-//! The core feature of this crate is the `Pretty` trait, which represents types that can be
+//! The core feature of this crate is the [`Pretty`] trait, which represents types that can be
 //! pretty-printed.  This crate provides a number of built-in types implementing `Pretty`, which be
 //! combined to implement a wide variety of formatting and layout strategies.  For many purposes,
 //! you will not need to implement `Pretty` for your own types, but can instead convert your type
@@ -71,6 +69,8 @@
 //! ]";
 //! assert_eq!(to_string(&to_pretty(&large_list), max_line, tab_size), expected);
 //! ```
+//!
+//! [`Pretty`]: trait.Pretty.html
 
 use std::io;
 use std::ops::{Add, Mul, Deref};
